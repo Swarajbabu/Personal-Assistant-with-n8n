@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="C:\Users\ASUS\Pictures\Screenshots\Screenshot 2025-09-16 123421.png" alt="AI Agent Workflow Banner" width="800">
+  <img src="/image" alt="AI Agent Workflow Banner" width="800">
 </p>
 # Personal-Assistant-with-n8n
 AI-powered Personal Assistant Workflow 🤖 – A smart assistant that works inside Telegram, supports text &amp; voice inputs, and can manage emails, schedule calendar events, handle contacts via Google Sheets, solve calculations, and answer general queries.
