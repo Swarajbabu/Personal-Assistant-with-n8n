@@ -75,18 +75,32 @@ To run this project, follow these steps:
    - Import the JSON files **one by one** (you cannot upload all four at once).  
    - After importing all four JSON files, the workflow will show all the connected **agents and nodes**.  
 
-3. **Set Up Telegram Bot**  
+3. **Create an OpenAI API Key**  
+   - Go to [OpenAI](https://platform.openai.com/) and generate an **API key**.  
+   - Add this key to the **OpenAI Node** inside N8N so the AI can process inputs.  
+
+4. **Set Up a Local Memory Node**  
+   - Add a **Memory Node** in N8N.  
+   - This acts as simple **local memory**, so the assistant can **remember context** across inputs.  
+
+5. **Define System Prompts**  
+   - The AI needs **prompts** to understand your intent (keywords like *send*, *create*, *delete*).  
+   - Use the **System Prompt Generator** ([System Prompt Generator](https://chatgpt.com/g/g-8qIKJ1ORT-system-prompt-generator)).  
+   - Describe your idea there → it will generate a **system prompt** for you.  
+   - Add this generated prompt in the **AIAgent Node** under *System Instructions*.  
+
+6. **Set Up Telegram Bot**  
    - Open **Telegram** and search for **BotFather**.  
    - Create a new bot and get the **API token**.  
    - Add this token to your N8N Telegram node for integration.  
 
-4. **Connect Services**  
-   - **Gmail** → Give authorization to allow sending, reading, and replying to emails.  
-   - **Google Calendar** → Authorize access to create, update, and delete events.  
-   - **Google Sheets** → Authorize access to manage your contact database.  
+7. **Connect Services**  
+   - **Gmail** → Authorize to allow sending, reading, and replying to emails.  
+   - **Google Calendar** → Authorize to create, update, and delete events.  
+   - **Google Sheets** → Authorize to manage your contact database.  
    - **Calculator Node** → No extra setup needed, just add it in N8N.  
 
-5. **Run the Workflow**  
+8. **Run the Workflow**  
    - Once all connections are authorized, activate the workflow.  
    - Your **AI Personal Assistant** is now ready 🎉  
 
@@ -98,7 +112,8 @@ To run this project, follow these steps:
 - Manage **emails, calendar, contacts**  
 - Solve **calculations**  
 - Ask **general knowledge questions**  
----
+- Enjoy **basic memory support** for context-based interactions  
+
 ## 💡 Why Use This Workflow?  
 
 - 📲 Works entirely inside **Telegram** – no need to switch apps.  
