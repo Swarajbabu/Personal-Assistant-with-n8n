@@ -1,0 +1,1003 @@
+{
+  "name": "personal assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        -112
+      ],
+      "id": "9fa4c7fe-d867-4f7f-84ef-c5ddfc3bcf31",
+      "name": "Telegram Trigger",
+      "webhookId": "039a2fff-ed6a-4e7d-b7fd-8ee6180612f0",
+      "credentials": {
+        "telegramApi": {
+          "id": "ACo7BG2gIxH3gutl",
+          "name": "SWARAJGPTBOT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1296,
+        -96
+      ],
+      "id": "076f6f17-7717-4c4e-847b-c4902a9b3698",
+      "name": "Send a text message",
+      "webhookId": "62bb5553-54eb-4963-a889-b3dd54d4b026",
+      "credentials": {
+        "telegramApi": {
+          "id": "ACo7BG2gIxH3gutl",
+          "name": "SWARAJGPTBOT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendChatAction",
+        "chatId": "={{ $json.message.chat.id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        272,
+        -112
+      ],
+      "id": "8b43e99a-fc04-4264-9fdc-ed67191aebdb",
+      "name": "Send a chat action",
+      "webhookId": "dcc9dd9f-0cc6-49f6-9e95-d378297483f3",
+      "credentials": {
+        "telegramApi": {
+          "id": "ACo7BG2gIxH3gutl",
+          "name": "SWARAJGPTBOT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "contextWindowLength": 22
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        992,
+        240
+      ],
+      "id": "99663edb-ffcd-4cab-a61f-9edc50c9eba0",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "swarajvecha@gmail.com",
+          "mode": "id"
+        },
+        "start": "={{ $fromAI(\"StartTime\") }}",
+        "end": "={{ $fromAI(\"EndTime\") }}",
+        "useDefaultReminders": false,
+        "additionalFields": {
+          "summary": "={{ $fromAI(\"eventTitle\") }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        3104,
+        -16
+      ],
+      "id": "6b6e82a8-c4c6-458d-bae5-aefa31058648",
+      "name": "Create an event in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "xsuEz4BcC2A14LSf",
+          "name": "Google Calendar Swaraj vecha"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        848,
+        240
+      ],
+      "id": "16e95757-41de-45ad-a2f8-7f5dc4b20988",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "BDvRAwuUqC2iJjqy",
+          "name": "5 $ PER"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message.voice.file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "cd61d2b5-b427-4795-bd8f-debac101acda"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "AUDIO"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8e53e0e1-6304-4822-bfc1-f3ea8a3d2e5c",
+                    "leftValue": "={{ $('Telegram Trigger').item.json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TEXT"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        432,
+        -112
+      ],
+      "id": "9e28894c-21e3-40e9-8615-2807e7db68fa",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $('Telegram Trigger').item.json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        624,
+        -208
+      ],
+      "id": "30152de9-efcd-49cb-8167-17ee13880383",
+      "name": "Get a file",
+      "webhookId": "cc499448-180e-4d3f-84a4-821dff062834",
+      "credentials": {
+        "telegramApi": {
+          "id": "ACo7BG2gIxH3gutl",
+          "name": "SWARAJGPTBOT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        784,
+        -208
+      ],
+      "id": "f997dd67-0e8d-47a6-97f1-a80be6ed9a98",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "openAiApi": {
+          "id": "BDvRAwuUqC2iJjqy",
+          "name": "5 $ PER"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=call if any contact information is required go to this sheet",
+        "documentId": {
+          "__rl": true,
+          "value": "1AMoWecXK5pkGRU3QQscZnLhWveSeqmupWWmHDjuVeQQ",
+          "mode": "list",
+          "cachedResultName": "content for Ai AGENT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AMoWecXK5pkGRU3QQscZnLhWveSeqmupWWmHDjuVeQQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AMoWecXK5pkGRU3QQscZnLhWveSeqmupWWmHDjuVeQQ/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1184,
+        400
+      ],
+      "id": "14cfa915-74c0-4178-bf5e-b44eb731a8d0",
+      "name": "Data Base",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "MXvxCfpcDML3jjWI",
+          "name": "content"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": "={{ $fromAI(\"limit\") }}",
+        "filters": {
+          "sender": "={{ $fromAI(\"SenderEmail\") }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        3088,
+        144
+      ],
+      "id": "928595a8-895e-433b-8eea-a1943c32641c",
+      "name": "ALL MAILS",
+      "webhookId": "34a7d9a3-2c17-4136-b0f1-64125badc911",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iqTWTWx6h8nVNiMP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $fromAI(\"Sendermail\") }}",
+        "subject": "={{ $fromAI(\"Subject\") }}",
+        "message": "={{ $fromAI(\"Body\") }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        2976,
+        144
+      ],
+      "id": "ec47b122-e3ac-414f-92ff-0f38ade16e13",
+      "name": "Send Gmail",
+      "webhookId": "5050e3d3-acc6-4a77-8cfb-4b23f9586b95",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iqTWTWx6h8nVNiMP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendChatAction",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        704,
+        -32
+      ],
+      "id": "a199544a-50dd-4694-9f2f-8bcaafa5101d",
+      "name": "Send a chat action1",
+      "webhookId": "dcc9dd9f-0cc6-49f6-9e95-d378297483f3",
+      "credentials": {
+        "telegramApi": {
+          "id": "ACo7BG2gIxH3gutl",
+          "name": "SWARAJGPTBOT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "swarajvecha@gmail.com",
+          "mode": "list",
+          "cachedResultName": "swarajvecha@gmail.com"
+        },
+        "start": "={{ $fromAI(\"StartTime\") }}",
+        "end": "={{ $fromAI(\"EndTime\") }}",
+        "useDefaultReminders": false,
+        "additionalFields": {
+          "attendees": [
+            "={{ $fromAI(\"Attendees\") }}"
+          ],
+          "summary": "={{ $fromAI(\"eventTitle\") }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        3024,
+        -144
+      ],
+      "id": "454d1c1f-f86a-45bd-a27f-140aca71ff41",
+      "name": "Create Google Calendar With Attendees",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "xsuEz4BcC2A14LSf",
+          "name": "Google Calendar Swaraj vecha"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "swarajvecha@gmail.com",
+          "mode": "list",
+          "cachedResultName": "swarajvecha@gmail.com"
+        },
+        "returnAll": true,
+        "timeMin": "={{ $fromAI(\"OneDayBefore\",\"one day before the date the user request\")}}",
+        "timeMax": "={{ $fromAI(\"OneDayAfter\",\"one day after the date the user request\")}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        2944,
+        -16
+      ],
+      "id": "4c0a9ac1-ce25-4286-aa74-d11591b41e59",
+      "name": "Get many events in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "xsuEz4BcC2A14LSf",
+          "name": "Google Calendar Swaraj vecha"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "call this to access mail",
+        "workflowId": {
+          "__rl": true,
+          "value": "OYWFt0d20taHsGRQ",
+          "mode": "list",
+          "cachedResultName": "Email Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1392,
+        240
+      ],
+      "id": "f258ca75-1a12-429d-9fa9-58ab31a76bb3",
+      "name": "EMail Agent"
+    },
+    {
+      "parameters": {
+        "description": "call this to access calendar",
+        "workflowId": {
+          "__rl": true,
+          "value": "00L8g1vo2gdzuAan",
+          "mode": "list",
+          "cachedResultName": "Calendar Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1520,
+        240
+      ],
+      "id": "7deaac1e-a0b4-4205-a9cf-fac8b07472eb",
+      "name": "CalendarAgent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}\n{{ $json.text }}",
+        "options": {
+          "systemMessage": "You are a personal assistant agent. You receive input from the user in two possible forms:\n\nText input (directly typed by the user)\n\nVoice input (spoken by the user, converted into text)\n\nYou must always interpret the input and decide whether it requires:\n\nEmail actions → If the user wants to send, read, organize, or manage emails, you must forward the request to the Email Note.\n\nCalendar actions → If the user wants to create, update, delete, or view calendar events, schedules, or reminders, you must forward the request to the Calendar Note.\n\nGuidelines:\n\nDo not mix tasks between notes. If the request is email-related, only go to the Email Note. If it is calendar-related, only go to the Calendar Note.\n\nIf the request involves both (e.g., \"Schedule a meeting and send an email invite\"), handle it by sending the relevant parts to both notes.\n\nAlways keep the parent assistant as the main entry point. The parent interprets intent and routes the task to the correct child note."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        -96
+      ],
+      "id": "3d0f75b4-5149-41b0-a6d6-05895a7eaca4",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+      "typeVersion": 2.1,
+      "position": [
+        2096,
+        0
+      ],
+      "id": "80096a8b-6ab9-45cf-a8db-db2e95cce045",
+      "name": "Summarization Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2208,
+        160
+      ],
+      "id": "a0b6222b-6691-44e0-a9e9-973d33e756ae",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "BDvRAwuUqC2iJjqy",
+          "name": "5 $ PER"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/kHhWB9Fw3aF6ly7JvltC",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xi-api-key",
+              "value": "sk_6eb64aa49b169aaaa94e175b6e78679f13094a1dc01d4459"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"text\":\"{{JSON.stringify($json.response.text).replace(/(^\\\"|\\\"$)/g, '') }}\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2448,
+        0
+      ],
+      "id": "2b86e023-fbbe-4685-867d-9c2c18a39e67",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "sendAudio",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2656,
+        0
+      ],
+      "id": "609b08d6-a653-4118-bb89-598bc980b1e0",
+      "name": "Send an audio file",
+      "webhookId": "7fde1055-64c0-4f8f-b17b-9c0e57e2ffc6",
+      "credentials": {
+        "telegramApi": {
+          "id": "uc8hUExqCVUdhuPf",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## I'm a note \n### This process is useful for converting text into audio. We connect the AI node to summarizer, then send the summarized text through an HTTP request next connect to telegram. For this, we use the ElevenLabs API keys, which help in converting the text to audio. However, this service is available under a paid plan — we need to purchase it for $5. For free it not available",
+        "height": 192,
+        "width": 544
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2176,
+        -224
+      ],
+      "typeVersion": 1,
+      "id": "30aef17f-8118-4691-bb00-46961a9209cc",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## We can use directly also",
+        "height": 512,
+        "width": 336
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2896,
+        -224
+      ],
+      "typeVersion": 1,
+      "id": "99ff9280-cb47-4a1b-b50f-a63a6bcb9093",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 288,
+        "width": 768
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2080,
+        -16
+      ],
+      "typeVersion": 1,
+      "id": "1eb9650e-6c4f-44e8-bdea-9edf9b007123",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1AMoWecXK5pkGRU3QQscZnLhWveSeqmupWWmHDjuVeQQ",
+          "mode": "list",
+          "cachedResultName": "content for Ai AGENT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AMoWecXK5pkGRU3QQscZnLhWveSeqmupWWmHDjuVeQQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AMoWecXK5pkGRU3QQscZnLhWveSeqmupWWmHDjuVeQQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Name__using_to_match_', ``, 'string') }}",
+            "Gmail": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Gmail', ``, 'string') }}",
+            "Phone No": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Phone_No', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "Name"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Gmail",
+              "displayName": "Gmail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone No",
+              "displayName": "Phone No",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1312,
+        400
+      ],
+      "id": "735687c5-8714-469e-9e73-d355bf93fb81",
+      "name": "UPDATE OR ADD INFORMATION",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "MXvxCfpcDML3jjWI",
+          "name": "content"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "clear",
+        "documentId": {
+          "__rl": true,
+          "value": "1AMoWecXK5pkGRU3QQscZnLhWveSeqmupWWmHDjuVeQQ",
+          "mode": "list",
+          "cachedResultName": "content for Ai AGENT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AMoWecXK5pkGRU3QQscZnLhWveSeqmupWWmHDjuVeQQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AMoWecXK5pkGRU3QQscZnLhWveSeqmupWWmHDjuVeQQ/edit#gid=0"
+        },
+        "clear": "specificRows",
+        "startIndex": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_Row_Number', ``, 'number') }}",
+        "rowsToDelete": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Number_of_Rows_to_Delete', ``, 'number') }}"
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1072,
+        400
+      ],
+      "id": "39297163-afa4-4d10-a567-2b7fe0c3504b",
+      "name": "Clear sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "MXvxCfpcDML3jjWI",
+          "name": "content"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        224
+      ],
+      "id": "0c7a49d5-cc2a-44ff-a975-69a25c20b91e",
+      "name": "Calculator"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a chat action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a chat action": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event in Google Calendar": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a chat action1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Base": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ALL MAILS": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Send Gmail": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Send a chat action1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Google Calendar With Attendees": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Get many events in Google Calendar": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "EMail Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CalendarAgent": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarization Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarization Chain": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send an audio file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UPDATE OR ADD INFORMATION": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "d1d1410b-2c4f-4fab-bcc2-7bdcd653a31f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2bb0ab11c35b82ecba8d9c9dce3250c722bc1532f1e334d813231c541b90cf8d"
+  },
+  "id": "RNFeEVmnIeCaI7aa",
+  "tags": []
+}

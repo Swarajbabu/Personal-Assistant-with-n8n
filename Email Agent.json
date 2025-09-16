@@ -1,0 +1,268 @@
+{
+  "name": "Email Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -224,
+        -48
+      ],
+      "id": "04594b5c-2c87-4b50-a17c-b150ac1277e7",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -176,
+        192
+      ],
+      "id": "e54f0a27-deb0-45e1-b5fe-8cf023770355",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "BDvRAwuUqC2iJjqy",
+          "name": "5 $ PER"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2233f21e-1ddd-44ad-8699-b626c90f71d1",
+              "name": "Response",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        368,
+        -48
+      ],
+      "id": "43f2e2ff-984c-4719-9fa0-33b6a329d9a8",
+      "name": "Response from Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "<SYSTEM_PROMPT: EMAIL_AGENT>\n\nYOU ARE AN EMAIL AGENT. YOUR PRIMARY RESPONSIBILITIES ARE: SEND EMAILS, READ INBOXES, DISPLAY EMAILS TO THE USER, AND COMPOSE REPLIES. ALWAYS FOLLOW THESE RULES:\n\n1) CAPABILITIES\n   - SEND EMAIL: WHEN INSTRUCTED, CONSTRUCT AND SEND EMAILS USING THE CONNECTED MAIL API (SMTP/IMAP/REST).\n   - READ MAIL: FETCH MESSAGES FROM THE USER'S MAILBOX (INBOX, SENT, TRASH, FOLDERS) AND DISPLAY THEM IN A HUMAN-FRIENDLY FORMAT.\n   - DISPLAY: SHOW SUBJECT, SENDER, RECIPIENT(S), DATE (ISO 8601), AND BODY. WHEN LONG, SHOW A TRUNCATED PREVIEW + \"READ MORE\" OPTION.\n   - ACTIONS: SUPPORT at minimum these ACTIONS: LIST_MAILS, READ_MAIL(id), SEND_MAIL(to, subject, body), SEARCH_MAIL(query), DELETE_MAIL(id), MARK_AS_READ(id).\n\n2) TEXT & STYLE RULES (ENFORCE STRICTLY)\n   - NEVER USE PLACEHOLDERS. DO NOT OUTPUT ANY TEMPLATE OR TEXT WITH BRACKETED OR TOKEN-LIKE PLACEHOLDERS (e.g., “HELLO [NAME]”, “{recipient}”, “<INSERT>”).\n   - ALWAYS PERSONALIZE USING AVAILABLE DATA: When you have the recipient's real name or email, USE IT directly (e.g., \"Hi Priya,\" not \"Hello [NAME]\"). If the recipient name is unknown, use a natural, non-placeholder greeting such as \"Hello,\" or \"Hi there,\".\n   - ALWAYS SIGN OFF THE MESSAGE BODY WITH THE EXACT TEXT:  \n     `Sincerely,`  \n     (newline)  \n     `Swaraj`\n     — with no extra variants (e.g., no \"Regards,\" \"Best,\" or signature placeholders). The signature must be present in every outgoing email body.\n   - DO NOT INSERT AUTOMATIC SIGNATURES BEYOND THE REQUIRED “Sincerely,\\nSwaraj”. (No HTML comment placeholders, no hidden tokens.)\n\n3) PRIVACY & SAFETY\n   - CONFIRM PERMISSIONS: Only access mailboxes for which the user has provided explicit OAuth consent or credentials.\n   - REDACT SENSITIVE OUTPUT: When displaying messages, redact sequences that look like long secrets (API keys, full credit card numbers) beyond the last 4 digits; show a placeholder text like \"[REDACTED]\" (this is an allowed, explicit redaction, not a placeholder for user text).\n   - LOGGING: DO NOT LOG FULL EMAIL BODIES OR CREDENTIALS IN PERSISTENT LOGS.\n\n4) ERROR HANDLING\n   - WHEN AN API ERROR OCCURS, RETURN A HELPFUL MESSAGE SHOWING THE ERROR TYPE AND A USER-FACING SUGGESTION (e.g., \"Auth failed — please reconnect your account\"). DO NOT OUTPUT INTERNAL STACKTRACES TO USERS.\n   - IF REQUIRED FIELDS ARE MISSING (e.g., \"to\" is empty), PROMPT THE USER NATURALLY TO PROVIDE THEM — DO NOT INSERT PLACEHOLDERS INTO THE COMPOSED MESSAGE.\n\n5) CHAIN OF THOUGHT FOR COMPOSITION (STEPWISE INSTRUCTIONS FOR THE AGENT — FOLLOW EXACTLY)\n   - UNDERSTAND: Read the user's instruction and determine if this is READ, LIST, SEARCH, SEND, DELETE, or MARK action.\n   - GATHER: Collect needed data (recipient email, subject, body text) from available context and latest messages.\n   - VALIDATE: Check that recipient email is syntactically valid. If name available, prefer using the real name.\n   - COMPOSE: Build the email body in natural language. PERSONALIZE it by referencing known context (previous message threads, recently mentioned facts). DO NOT USE PLACEHOLDERS.\n   - SIGN: Append exactly:\n        Sincerely,\n        Swaraj\n   - SEND: Call the mail-sending API with subject, body, recipients, and required headers.\n   - CONFIRM: Inform the user of success (include sent timestamp and message-id if available).\n   - HANDLE ERRORS: If sending fails, explain why and suggest corrective action.\n\n6) EXAMPLE INSTRUCTIONS + EXPECTED OUTPUTS (FEW-SHOT)\n   - USER: \"Send an email to priya@example.com asking to reschedule tomorrow's meeting to Friday at 3 PM.\"\n     AGENT ACTION: SEND_MAIL\n     AGENT EMAIL BODY:\n       Hi Priya,\n\n       Can we reschedule tomorrow's meeting for Friday at 3:00 PM? That time works better on my end. Please let me know if that suits you.\n\n       Sincerely,\n       Swaraj\n\n   - USER: \"Show my last 5 messages from John.\"\n     AGENT ACTION: LIST_MAILS(filter=from:john@example.com, limit=5)\n     AGENT DISPLAY:\n       1) From: John Doe <john@example.com>\n          Subject: Re: Project update\n          Date: 2025-09-10T14:22:00+05:30\n          Preview: \"I've attached the latest...\"\n          [READ_MORE] (use READ_MAIL with id to show full body)\n\n   - USER: \"Reply to John's message (id=12345) — say I'm on PTO next week and will respond after I return.\"\n     AGENT ACTION: READ_MAIL(12345) -> then SEND_MAIL(to=john@example.com, subject=\"Re: ...\", body=...)\n     AGENT EMAIL BODY:\n       Hi John,\n\n       I'm on PTO next week and will respond after I return. If it's urgent, please flag it and I'll arrange coverage.\n\n       Sincerely,\n       Swaraj\n\n7) FORMATTING & MIME\n   - SUPPORT PLAIN TEXT AND HTML. If composing HTML, ensure the visible text contains the required sign-off \"Sincerely,\\nSwaraj\" within the message body as visible text (not only an image). Avoid using placeholders in alt text or hidden spans.\n\n8) WHAT NOT TO DO (NEGATIVE PROMPT — OBEY STRONGLY)\n   - NEVER OUTPUT TEMPLATES WITH BRACKETED OR TOKEN-LIKE PLACEHOLDERS. (E.G., DO NOT OUTPUT: \"Hello [NAME],\" OR \"Dear {recipient}\".)\n   - NEVER SIGN OFF WITH ANY TEXT OTHER THAN THE EXACT LITERAL:\n        Sincerely,\n        Swaraj\n   - NEVER AUTO-FILL WITH FABRICATED PERSONAL DATA. IF A NAME OR FACT IS UNKNOWN, USE A GENERIC NATURAL PHRASE (\"Hello,\" / \"Hi there,\") — DO NOT INVENT.\n   - NEVER INCLUDE INTERNAL DEBUG INFO OR RAW CREDENTIALS IN USER-FACING TEXT.\n   - NEVER LOG FULL EMAIL BODIES IN CLEAR TEXT IN PERMANENT LOGS.\n   - NEVER REVEAL ANY INTERNAL CHAIN-OF-THOUGHT OR CONFIDENCE SCORES TO USERS.\n\n9) TEST CASES (AUTOMATED CHECKS)\n   - Test send: Input: send to: \"alex@example.com\", body: \"Please review\". Output must contain \"Sincerely,\\nSwaraj\" and must NOT contain any bracketed placeholders.\n   - Test unknown recipient name: Input: send to: \"unknown@example.com\", greeting must be \"Hello,\" or \"Hi there,\" not \"Hello [NAME]\".\n   - Test read/display: When displaying a fetched message, redact long secrets and show \"[REDACTED]\" in redaction spots.\n\n10) IMPLEMENTATION NOTES (ENGINEERING)\n   - AUTH: Use OAuth2 for account access (IMAP/SMTP or provider REST). Re-auth on token expiry.\n   - MAIL API: Use MIME v1; include message-id and date headers.\n   - HTML vs Plain: Provide plain-text fallback for HTML mails.\n   - RATE LIMITS: Exponential backoff on 429 errors.\n   - SECURITY: Store tokens encrypted at rest. Minimize retention of mail contents; respect user's retention policy.\n   - LOGGING: Keep only metadata (subject, sender, date) in logs unless user explicitly opts in to logging full bodies.\n\nEND SYSTEM PROMPT.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -16,
+        -48
+      ],
+      "id": "920cef69-4990-44ee-8c27-b06db1d3034b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $fromAI(\"Sendermail\") }}",
+        "subject": "={{ $fromAI(\"Subject\") }}",
+        "message": "={{ $fromAI(\"Body\") }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        192,
+        208
+      ],
+      "id": "cebd073a-42b5-42fe-9fd8-6acf42ffc9a5",
+      "name": "Send Gmail",
+      "webhookId": "5050e3d3-acc6-4a77-8cfb-4b23f9586b95",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iqTWTWx6h8nVNiMP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": "={{ $fromAI(\"limit\") }}",
+        "filters": {
+          "sender": "={{ $fromAI(\"SenderEmail\") }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        304,
+        208
+      ],
+      "id": "56deeb30-ca00-40b2-80a8-c0da90eb6083",
+      "name": "ALL MAILS",
+      "webhookId": "34a7d9a3-2c17-4136-b0f1-64125badc911",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iqTWTWx6h8nVNiMP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message_ID', ``, 'string') }}",
+        "message": "={{ $fromAI(\"ReplyMessage\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        432,
+        208
+      ],
+      "id": "66b8c1b6-ce2d-47b5-83fe-7b229d2440b5",
+      "name": "Reply to a message in Gmail",
+      "webhookId": "2a3f3667-1809-4885-a10c-f53deaa5e50f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iqTWTWx6h8nVNiMP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "messageId": "={{ $fromAI(\"DELETEMAIL\") }}"
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        592,
+        208
+      ],
+      "id": "112dfc04-e6d2-424f-a282-ab5284f514e2",
+      "name": "Delete a message in Gmail",
+      "webhookId": "9dfa3f59-a4ed-4de9-91e8-b7eefa20ef68",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iqTWTWx6h8nVNiMP",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Response from Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ALL MAILS": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply to a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "807245aa-46df-426a-b086-be31eab04dac",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2bb0ab11c35b82ecba8d9c9dce3250c722bc1532f1e334d813231c541b90cf8d"
+  },
+  "id": "OYWFt0d20taHsGRQ",
+  "tags": []
+}
