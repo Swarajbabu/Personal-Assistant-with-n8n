@@ -1,4 +1,4 @@
-![AI Agent Workflow](https://github.com/Swarajbabu/Personal-Assistant-with-n8n/blob/main/Image.png?raw=true)
+![AI Agent Workflow](https://github.com/Swarajbabu/Personal-Assistant-with-n8n/blob/main/Swarajbabu%20Personal-Assistant%20Image.png?raw=true)
 # Personal-Assistant-with-n8n
 AI-powered Personal Assistant Workflow 🤖 – A smart assistant that works inside Telegram, supports text &amp; voice inputs, and can manage emails, schedule calendar events, handle contacts via Google Sheets, solve calculations, and answer general queries.
 # 🤖 AI Agent Workflow – Personal Assistant  
